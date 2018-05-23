@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 인터페이스 매퍼 -->
+<mapper namespace="com.bit.phone.dao.GuestDao">
+
+	<insert id="insertText" parameterType="com.bit.phone.Model.GuestList">
+		insert into
+		GuestList(listTitle,listText)
+		values(#{listTitle},#{listText})
+	</insert>
+	
+	<select id="selectView" resultType="com.bit.phone.Model.GuestList">
+		select * from GuestList
+	</select>
+	
+	<update id="listUpdate" parameterType="com.bit.phone.Model.GuestList">
+		update GuestList set
+		listTitle = #{listTitle},listText =#{listText} where idx = #{idx}
+	</update>
+	
+	<select id="selectByIdx" resultType="com.bit.phone.Model.GuestList">
+		select * from guestList
+		where idx=#{idx}
+	</select>
+	
+	<delete id="guestdelete">
+		delete from guestlist where idx =#{idx}
+	</delete>
+	
+	<update id="countUp">
+		update guestlist set listcount = #{param1} where idx
+		= #{param2}
+	</update>
+	
+	<select id="CountAll" resultType="int">
+		select count(*) from guestlist
+	</select>
+	
+	<select id="RowNum" resultType="com.bit.phone.Model.GuestList">
+		SELECT (@rownum := @rownum + 1)
+		AS rownum
+		FROM guestlist, (SELECT @rownum := 0) r group by @rownum
+		desc;
+	</select>
+</mapper>

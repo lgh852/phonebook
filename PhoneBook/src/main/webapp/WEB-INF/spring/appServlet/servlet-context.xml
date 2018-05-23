@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+	<!-- DispatcherServlet Context: defines this servlet's request-processing 
+		infrastructure -->
+
+	<!-- Enables the Spring MVC @Controller programming model -->
+	<mvc:annotation-driven />
+
+	<!-- Handles HTTP GET requests for /resources/** by efficiently serving 
+		up static resources in the ${webappRoot}/resources directory -->
+	<mvc:resources mapping="/resources/**" location="/resources/" />
+
+	<!-- 업로드된 파일(사진) 들을 원래 가지는 성격의 파일로 정용하기 위한 설정 -->
+	<mvc:resources mapping="/uploadfile/**" location="/uploadfile/" />
+
+	<!-- Resolves views selected for rendering by @Controllers to .jsp resources 
+		in the /WEB-INF/views directory -->
+	<beans:bean
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<beans:property name="prefix" value="/WEB-INF/views/" />
+		<beans:property name="suffix" value=".jsp" />
+	</beans:bean>
+
+	<context:component-scan base-package="com.bit.phone" />
+	<!-- 데이터베이스 연결을 위한 dataSource 설정 -->
+	<beans:bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+		<!-- 식별자 -->
+		<beans:property name="driverClass" value="com.mysql.jdbc.Driver" />
+
+		<beans:property name="jdbcUrl"
+
+			value="jdbc:mysql://localhost/pb?allowMultiQueries=true" />
+		<!--gaktoktoktest.czzyhy2b6kms.ap-northeast-2.rds.amazonaws.com -->
+		<beans:property name="user" value="bit" />
+
+		<beans:property name="password" value="bit" />
+	</beans:bean>
+	<!--MyBatis&Spring 연동 -->
+	<beans:bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<beans:property name="dataSource" ref="dataSource" />
+		<beans:property name="mapperLocations"
+			value="classpath:com/bit/phone/mapper/*.xml" />
+		<!--calsspath:xml이 위치한 패키지 경로 -->
+
+	</beans:bean>
+	<!-- sqlSessionTemplet 생성하는빈 Mybatais로 Dao -->
+	<beans:bean id="sqlSession" class="org.mybatis.spring.SqlSessionTemplate">
+		<beans:constructor-arg index="0" ref="sqlSessionFactory" />
+	</beans:bean>
+	<!--서비스 빈 생성 -->
+	<beans:bean id="memberservice" class="com.bit.phone.service.MemberService" />
+
+	<!-- Handles HTTP GET requests for /resources/** by efficiently serving 
+		up static resources in the ${webappRoot}/resources directory -->
+
+	<mvc:resources mapping="/resources/**" location="/resources/" />
+	<!-- 사진 저장 폴더를 리소스 폴더로 등록 -->
+	<mvc:resources mapping="/uploadfile/**" location="/uploadfile/" />
+
+	<beans:bean id="upload" class="com.bit.phone.service.PhotoUpLoad" />
+
+	<beans:bean id="multipartResolver"
+		class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<beans:property name="defaultEncoding">
+			<beans:value>utf-8</beans:value>
+		</beans:property>
+	</beans:bean>
+	<beans:bean id="Friend" class="com.bit.phone.service.FriendService" />
+
+	<beans:bean id="fhotoFre" class="com.bit.phone.service.PhotoFren" />
+
+	<!-- 로그인 체크를 위한 인터셉터 등록 -->
+	<mvc:interceptors>
+		<!-- 한개의 핸들러인터셉터를 생성 -->
+		<mvc:interceptor>
+			<!-- 핸들러인터셉터를 적용할 경로 설정 -->
+			<mvc:mapping path="/loginck/**" />
+			<mvc:mapping path="/board/**" />
+			<!-- 경로중 일부 경로를 제외하고 싶을 때 -->
+			<!-- <mvc:exclude-mapping path="/mypage/help/**"/> -->
+			<!--인터셉터 클래스를 상속받아 사용할 메서드가 있는 클래스 경로 -->
+			<beans:bean class="com.bit.phone.interceptor.LoginCkInterceptor" />
+		</mvc:interceptor>
+	</mvc:interceptors>
+	<!-- 페이징 서비스 빈 -->
+	<beans:bean id="pageService" class="com.bit.phone.service.ListPageService" />
+
+	<!--페이지 모델 빈 -->
+	<beans:bean id="pagemodel" class="com.bit.phone.Model.ViewPageModel" />
+
+	<beans:bean id="guestservice" class="com.bit.phone.service.GuestListService" />
+
+	<beans:bean id="photo" class="com.bit.phone.service.BoardPhotoUpLoad" />
+	
+	<beans:bean id="board" class="com.bit.phone.service.BoardService" />
+	
+	<beans:bean id="shopping" class="com.bit.phone.service.NaverShoppingService" />
+		<!--카테고리 모델 1 빈 -->
+	<beans:bean id="room" class="com.bit.phone.Model.Category_Room" />
+
+	<beans:bean id="space" class="com.bit.phone.Model.Category_Space" />
+	
+
+
+
+</beans:beans>

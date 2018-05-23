@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bit.phone.dao.MemberDao">
+
+
+	<insert id="insertMember" parameterType="com.bit.phone.Model.Mmbr_inf"
+		useGeneratedKeys="true" keyProperty="mmbr_nmbr" >
+
+		insert into
+		pb.MMBR_INF(MMBR_ID,MMBR_PASSWORD,MMBR_EMAIL,MMBR_NM,MMBR_PHOTO)
+		values(#{mmbr_id},#{mmbr_password},#{mmbr_email},#{mmbr_nm},#{mmbr_photo})
+
+	</insert>
+	
+	
+	
+	<select id="selectById" resultType="com.bit.phone.Model.Mmbr_inf">
+
+		select * from pb.MMBR_INF
+		where MMBR_ID = #{member_id}
+	</select>
+
+	<insert id="InsertComReg" parameterType="com.bit.phone.Model.Comp_inf"
+		useGeneratedKeys="true" keyProperty="comp_nmbr">
+		insert into comp_inf
+		(comp_nm)values(#{comp_nm});
+	</insert>
+
+	<insert id="InsertComfren" parameterType="com.bit.phone.Model.Comp_inf">
+		insert into fren_inf
+		(FREN_NM,FREN_PHN_NMBR,FREN_EMAIL,FREN_ADDR,FREN_PHOTO,MMBR_NMBR,id2)
+		VALUES(#{fren_nm},#{fren_phn_nmbr},#{fren_email},#{fren_addr},#{fren_photo},#{mmbr_nmbr},#{comp_nmbr});
+	</insert>
+
+	<insert id="InsertUnivReg" parameterType="com.bit.phone.Model.Univ_inf"
+		useGeneratedKeys="true" keyProperty="univ_numbr">
+
+		INSERT INTO
+		univ_inf(MAJ,GRD)VALUES(#{maj},#{grd})
+
+	</insert>
+
+	<insert id="InsertUnivfren" parameterType="com.bit.phone.Model.Univ_inf">
+		insert into fren_inf
+		(FREN_NM,FREN_PHN_NMBR,FREN_EMAIL,FREN_ADDR,FREN_PHOTO,MMBR_NMBR,id)
+		VALUES(#{fren_nm},#{fren_phn_nmbr},#{fren_email},#{fren_addr},#{fren_photo},#{mmbr_nmbr},#{univ_numbr});
+
+	</insert>
+
+	<select id="ListFrenSelect" resultType="com.bit.phone.Model.FrenAll">
+	SELECT (@rownum := @rownum + 1)as rownum,pb.F.fren_nmbr,pb.C.COMP_NM,pb.C.COMP_NMBR,pb.U.GRD,pb.U.MAJ,pb.U.UNIV_NMBR,pb.F.FREN_ADDR,pb.F.FREN_EMAIL,pb.F.FREN_NM,pb.F.FREN_NMBR,pb.F.FREN_PHN_NMBR,pb.F.FREN_PHOTO,pb.F.id,pb.F.id2,pb.F.MMBR_NMBR
+		FROM pb.fren_inf 
+		F LEFT JOIN pb.univ_inf U ON F.id = U.UNIV_NMBR
+		LEFT JOIN pb.comp_inf C  
+		ON F.ID2 = C.COMP_NMBR,(select @rownum:=0)tmp  ORDER BY F.FREN_NMBR desc limit 0 ,10 ;
+	</select>
+
+	<select id="selectView" resultType="com.bit.phone.Model.FrenAll">
+		SELECT *
+		FROM pb.fren_inf F LEFT JOIN pb.univ_inf U ON F.id = U.UNIV_NMBR
+		LEFT JOIN pb.comp_inf C ON F.ID2 = C.COMP_NMBR where F.fren_nmbr =
+		#{fren_nmbr} ORDER BY F.FREN_NMBR desc;
+	</select> 
+	
+	<delete id="frenDelete" parameterType="String">
+		DELETE FROM pb.fren_inf WHERE pb.fren_inf.FREN_NMBR = #{mmbr};
+	
+	</delete>
+	<delete id="deleteUni" 	parameterType="int">
+		DELETE FROM PB.UNIV_INF WHERE PB.UNIV_INF.UNIV_NMBR =#{univ_numbr};
+	</delete>
+	<delete id="deleteCom"  parameterType="int">
+		DELETE FROM PB.COMP_INF WHERE PB.COMP_INF.COMP_NMBR =#{comp_nmbr};
+	</delete>
+	
+	<update id="frenUpdate" parameterType="com.bit.phone.Model.FrenAll">
+		UPDATE pb.fren_inf
+		SET
+		FREN_PHN_NMBR = #{fren_phn_nmbr},
+		FREN_EMAIL =#{fren_email} ,
+		FREN_ADDR = #{fren_addr},
+		FREN_PHOTO = #{fren_photo}
+		WHERE FREN_NMBR = #{fren_nmbr};
+	</update>
+	
+	<update id="comUpdate" parameterType="com.bit.phone.Model.FrenAll">
+		update pb.comp_inf
+		set COMP_NM =#{comp_nm} where COMP_NMBR = #{id2};
+		commit;
+	
+	</update>
+	<update id="univUpdate" parameterType="com.bit.phone.Model.FrenAll">
+		update pb.univ_inf
+		set MAJ =#{maj},GRD =#{grd} where UNIV_NMBR = #{id};
+		commit;
+		
+	</update>
+	
+	
+<!-- 	<select id="rowNum" resultType="com.bit.phone.Model.VilewPageModel">
+		SELECT (@rownum := @rownum + 1)
+		AS rowNum
+		FROM pb.fren_inf, (SELECT @rownum := 0) r group by @rownum
+		desc;
+	</select>
+	 -->
+	<select id="totalNum" resultType="com.bit.phone.Model.ViewPageModel">
+		select count(*) as Totalcnt from fren_inf;
+	</select>
+	
+	<select id="selectpage" resultType="com.bit.phone.Model.FrenAll" parameterType="com.bit.phone.Model.ViewPageModel">
+	SELECT (@rownum := @rownum + 1)as rownum,pb.F.fren_nmbr,pb.C.COMP_NM,pb.C.COMP_NMBR,pb.U.GRD,pb.U.MAJ,pb.U.UNIV_NMBR,pb.F.FREN_ADDR,pb.F.FREN_EMAIL,pb.F.FREN_NM,pb.F.FREN_NMBR,pb.F.FREN_PHN_NMBR,pb.F.FREN_PHOTO,pb.F.id,pb.F.id2,pb.F.MMBR_NMBR
+		FROM pb.fren_inf 
+		F LEFT JOIN pb.univ_inf U ON F.id = U.UNIV_NMBR
+		LEFT JOIN pb.comp_inf C  
+		ON F.ID2 = C.COMP_NMBR,(select @rownum:=0)tmp  ORDER BY F.FREN_NMBR desc limit #{minNum},#{maxNum} ;
+	</select>
+</mapper>
